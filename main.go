@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 
+	"github.com/A11Might/wechatgpt/biz"
 	"github.com/A11Might/wechatgpt/handler"
 	"github.com/A11Might/wechatgpt/helper"
 	"github.com/gin-gonic/gin"
@@ -29,7 +30,5 @@ func Init() {
 		log.Fatal("cannot load config:", err)
 	}
 	helper.DefaultConfig = &config
-	helper.DefaultMessageQueue = helper.NewMessageQueue(10)
-	helper.DefaultOfficialAccount = helper.NewOfficialAccount()
-	helper.DefaultOpenAI = helper.NewOpenAI(5)
+	biz.DefaultMessageService = biz.NewMessageService(5)
 }

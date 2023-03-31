@@ -2,6 +2,7 @@ package helper
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"net/url"
 
@@ -33,21 +34,23 @@ func NewOpenAI(contextSize int) *OpenAI {
 	}
 }
 
-func (o *OpenAI) Chat(content string) (string, error) {
-	o.messages = append(o.messages, openai.ChatCompletionMessage{
+func (oai *OpenAI) Chat(ctx context.Context, content string) (string, error) {
+	oai.messages = append(oai.messages, openai.ChatCompletionMessage{
 		Role:    openai.ChatMessageRoleUser,
 		Content: content,
 	})
 
-	if len(o.messages) == o.contextSize {
-		o.messages = o.messages[1:]
+	if len(oai.messages) == oai.contextSize {
+		oai.messages = oai.messages[1:]
 	}
 
-	resp, err := o.client.CreateChatCompletion(
-		context.Background(),
+	fmt.Printf("got:%+v\n", oai.messages)
+
+	resp, err := oai.client.CreateChatCompletion(
+		ctx,
 		openai.ChatCompletionRequest{
 			Model:    openai.GPT3Dot5Turbo,
-			Messages: o.messages,
+			Messages: oai.messages,
 		},
 	)
 
@@ -55,11 +58,22 @@ func (o *OpenAI) Chat(content string) (string, error) {
 		return "", err
 	}
 	reply := resp.Choices[0].Message.Content
-	o.messages = append(o.messages, openai.ChatCompletionMessage{
+	oai.messages = append(oai.messages, openai.ChatCompletionMessage{
 		Role:    openai.ChatMessageRoleAssistant,
 		Content: resp.Choices[0].Message.Content,
 	})
 	return reply, nil
 }
 
-var DefaultOpenAI *OpenAI
+func (oai *OpenAI) STT(ctx context.Context, filePath string) (string, error) {
+	req := openai.AudioRequest{
+		Model:    openai.Whisper1,
+		FilePath: filePath,
+	}
+
+	resp, err := oai.client.CreateTranscription(ctx, req)
+	if err != nil {
+		return "", err
+	}
+	return resp.Text, nil
+}

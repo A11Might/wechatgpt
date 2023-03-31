@@ -3,17 +3,17 @@ package handler
 import (
 	"fmt"
 
-	"github.com/A11Might/wechatgpt/helper"
+	"github.com/A11Might/wechatgpt/biz"
 	"github.com/gin-gonic/gin"
 	"github.com/silenceper/wechat/v2/officialaccount/message"
 )
 
 func MessageHanlder(c *gin.Context) {
-	server := helper.DefaultOfficialAccount.GetServer(c)
+	server := biz.DefaultMessageService.GetOfficialAccountService(c)
 	server.SkipValidate(true)
 	//设置接收消息的处理方法
 	server.SetMessageHandler(func(msg *message.MixMessage) *message.Reply {
-		reply, err := helper.DefaultMessageQueue.ProcessMessage(msg)
+		reply, err := biz.DefaultMessageService.ProcessMessage(c, msg)
 		if err != nil {
 			reply = message.NewText("处理错误请重试")
 		}

@@ -7,6 +7,7 @@ import (
 	"github.com/silenceper/wechat/v2/cache"
 	"github.com/silenceper/wechat/v2/officialaccount"
 	"github.com/silenceper/wechat/v2/officialaccount/config"
+	"github.com/silenceper/wechat/v2/officialaccount/material"
 	"github.com/silenceper/wechat/v2/officialaccount/server"
 )
 
@@ -37,4 +38,6 @@ func (oa *OfficialAccount) GetServer(c *gin.Context) *server.Server {
 	return oa.officialAccount.GetServer(c.Request, c.Writer)
 }
 
-var DefaultOfficialAccount *OfficialAccount
+func (oa *OfficialAccount) GetMaterial() *material.Material {
+	return oa.officialAccount.GetMaterial()
+}
